@@ -54,10 +54,7 @@ matchRouter.post("/", async (req, res) => {
 
         res.status(201).json({ data: event })
     } catch (e) {
-        res.status(500).json({
-            error: "Failed to create match.",
-            details: parsed.error.issues
-        })
+        console.error("Failed to create match:", e)
+        res.status(500).json({ error: "Failed to create match." })
     }
 })
-
