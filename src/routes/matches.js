@@ -26,7 +26,7 @@ matchRouter.get("/", async (req, res) => {
 
         res.json({ data })
     } catch (e) {
-        console.error("Failed to create match:", e)
+        console.error("Failed to list matches:", e)
         res.status(500).json({ error: "Failed to list matches." })
     }
 })
