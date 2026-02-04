@@ -22,26 +22,3 @@ export const wsArcjet = arcjetKey ? arcjet({
         slidingWindow({ mode: arcjetMode, interval: "2s", max: 5 })
     ]
 }) : null;
-
-export function securityMiddleware() {
-    return async (req, res, next) => {
-        if (!httpArcjet) return next()
-
-        try {
-            const decision = await httpArcjet.protect(req)
-
-            if (decision.isDenied()) {
-                if (decision.reason.isRateLimit()) {
-                    return res.status(429).json({ error: "Too many requests." })
-                }
-
-                return res.status(403).json({ error: "Forbidden." })
-            }
-        } catch (e) {
-            console.error("Arcjet middleware error,", e)
-            return res.status(503).json({ error: "Service Unavailable." })
-        }
-
-        next()
-    }
-}

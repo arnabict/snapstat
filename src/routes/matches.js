@@ -4,12 +4,30 @@ import { matches } from "../db/schema.js"
 import { db } from "../db/db.js"
 import { getMatchStatus } from "../utils/match-status.js"
 import { desc } from "drizzle-orm"
+import { httpArcjet } from "../arcjet.js"
 
 export const matchRouter = Router()
 
 const MAX_LIMIT = 100;
 
 matchRouter.get("/", async (req, res) => {
+    if (httpArcjet) {
+        try {
+            const decision = await httpArcjet.protect(req)
+
+            if (decision.isDenied()) {
+                if (decision.reason.isRateLimit()) {
+                    return res.status(429).json({ error: "Too many requests." })
+                }
+
+                return res.status(403).json({ error: "Forbidden." })
+            }
+        } catch (e) {
+            console.error("Arcjet HTTP protect error:", e)
+            return res.status(503).json({ error: "Service Unavailable." })
+        }
+    }
+
     const parsed = listMatchesQuerySchema.safeParse(req.query);
 
     if (!parsed.success) {
@@ -32,6 +50,23 @@ matchRouter.get("/", async (req, res) => {
 })
 
 matchRouter.post("/", async (req, res) => {
+    if (httpArcjet) {
+        try {
+            const decision = await httpArcjet.protect(req)
+
+            if (decision.isDenied()) {
+                if (decision.reason.isRateLimit()) {
+                    return res.status(429).json({ error: "Too many requests." })
+                }
+
+                return res.status(403).json({ error: "Forbidden." })
+            }
+        } catch (e) {
+            console.error("Arcjet HTTP protect error:", e)
+            return res.status(503).json({ error: "Service Unavailable." })
+        }
+    }
+
     const parsed = createMatchSchema.safeParse(req.body)
 
     if (!parsed.success) {
