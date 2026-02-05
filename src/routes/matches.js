@@ -5,6 +5,7 @@ import { db } from "../db/db.js"
 import { getMatchStatus } from "../utils/match-status.js"
 import { desc } from "drizzle-orm"
 import { httpArcjet } from "../arcjet.js"
+import { commentaryRouter } from "./commentary.js"
 
 export const matchRouter = Router()
 
@@ -98,3 +99,5 @@ matchRouter.post("/", async (req, res) => {
         res.status(500).json({ error: "Failed to create match." })
     }
 })
+
+matchRouter.use("/:id/commentary", commentaryRouter)
